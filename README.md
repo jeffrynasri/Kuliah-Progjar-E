@@ -1,4 +1,4 @@
-# Progjar E 
+# Pemrograman jaringan E 
 # Kelompok 1
 # 5114100178 KUKUH RILO PAMBUDI
 # 5114100043 JEFFRY NASRI FARUKI
