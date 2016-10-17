@@ -13,7 +13,7 @@ with open('file_download', 'wb') as f:
         print('data=%s', (data))
         if not data:
             break
-        # write data to a file
+        # menulis ke file
         f.write(data)
 
 f.close()
