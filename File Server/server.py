@@ -1,4 +1,5 @@
-import socket                   
+import socket
+import sys
 
 def download_file(conn):
     filename='mytext.txt'
@@ -13,16 +14,41 @@ def download_file(conn):
     print('Proses Download Sukses')
     conn.close()
 
-s = socket.socket()             # Inisialisasi Soket
+def command_process(data):
+    commands=data.split()
+    for command in commands:
+        print(command)
+    print (commands[0])
+def login_process():
+    print ("login proses")
+def command_menu():
+    while True:
+        conn.send(">> ")
+        data = conn.recv(1024)
+        if data:
+               #print('Server received', repr(data))
+            command_process(data)
+        else:
+            break
+def login_menu():
+    print("loginmenu")
+
+    
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind(('localhost', 10000))           #DItempelkan di locahost port 10000
 s.listen(1)                     
 
 print 'Server listening....'
-
 while True:
-    conn, addr = s.accept()     # Membangun KOneksi dengan klien
-    print 'Ada Koneksi dari', addr
-    data = conn.recv(1024)
-    print('Server received', repr(data))
-
-    download_file(conn)
+    conn, addr = s.accept()     # Membangun KOneksi denganklien
+    try:
+        print 'Ada Koneksi dari', addr
+        command_menu()
+    except KeyboardInterrupt:
+        conn.close()
+        sys.exit(0)
+    finally:
+        conn.close()
+#    conn.close()
+#    download_file(conn)
