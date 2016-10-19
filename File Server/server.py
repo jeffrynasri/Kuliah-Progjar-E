@@ -2,6 +2,9 @@ import socket
 import sys
 import os
 
+host_server='localhost'
+port_server = 10000
+active_dir=os.getcwd()
 #-------------------PROSES-PROSES FTP------------------------------
 def get(conn):
     filename='mytext.txt'
@@ -19,20 +22,35 @@ def put():
     print ("put=UPload")
 
 def ls():
-    path = os.getcwd()
-    dirs= os.listdir(path)
+    global active_dir
+    dirs= os.listdir(active_dir)
     for file in dirs:
         print file
         conn.sendall(file + "\r\n") 
-def cd():
-    print ("INi CD")        
+def cd(target):
+    global active_dir
+    if(target == '..'):
+        (final, start)=os.path.split(active_dir)
+        print (final)
+        print (start)
+        active_dir=final
+    else:
+        dir_list= os.listdir(active_dir)
+        for dirr in dir_list:
+            if(target == dirr):
+                active_dir=os.path.join(active_dir,target)                                
+                break
+            
 
-def delete():
-    print ("DElete") 
-def mkdir():
-    print ("mkdir")     
-def rmdir():
-    print ("rmdir")
+def pwd():
+    global active_dir
+    conn.sendall(active_dir + "\r\n") 
+def delete(nama_file):
+    os.remove(os.path.join(active_dir,nama_file))
+def mkdir(nama_dir):
+    os.mkdir(os.path.join(active_dir,nama_dir))
+def rmdir(nama_dir):
+    os.rmdir(os.path.join(active_dir,nama_dir))
 def quit():
     conn.close()
     sys.exit(0)
@@ -51,7 +69,22 @@ def command_process(data):
         quit()
     if (commands[0].lower() == 'logout'):
         status_send(231)
-        logout()                
+        logout()        
+    if (commands[0].lower() == 'pwd'):
+        pwd()                
+        status_send(226)
+    if (commands[0].lower() == 'cd'):
+        cd(commands[1])                
+#        status_send(226)     
+    if (commands[0].lower() == 'delete'):
+        delete(commands[1])                
+#        status_send(226)   
+    if (commands[0].lower() == 'mkdir'):
+        mkdir(commands[1])                
+#        status_send(226)   
+    if (commands[0].lower() == 'rmdir'):
+        rmdir(commands[1])                
+#        status_send(226)   
 def command_menu():
     while True:
         conn.send("[FTP-TC]>> ")
@@ -108,7 +141,7 @@ def login_menu():
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind(('localhost', 10000))
+s.bind((host_server, port_server))
 s.listen(1)                     
 
 print 'Server listening....'
@@ -120,10 +153,10 @@ while True:
         conn.send("Tersambung Ke FTP Server Kelompok 1\r\n")
         status_send(220)
         login_menu()
+#        command_menu()
     except KeyboardInterrupt:
         conn.close()
         sys.exit(0)
     finally:
         conn.close()
-#    conn.close()
-#    download_file(conn)
+
