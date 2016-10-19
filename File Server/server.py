@@ -1,7 +1,8 @@
 import socket
 import sys
+import os
 
-def download_file(conn):
+def donwload(conn):
     filename='mytext.txt'
     f = open(filename,'rb')
     l = f.read(1024)
@@ -13,12 +14,22 @@ def download_file(conn):
 
     print('Proses Download Sukses')
     conn.close()
+def upload():
+    print ("UPload")
+
+def list():
+    path = os.getcwd()
+    dirs= os.listdir(path)
+    for file in dirs:
+        print file
+        conn.sendall(file + "\r\n") 
 
 def command_process(data):
     commands=data.split()
-    for command in commands:
-        print(command)
-    print (commands[0])
+   # print (commands[0].lower())
+    if (commands[0].lower() == 'list'):
+        list()
+
 def login_process():
     print ("login proses")
 def command_menu():
