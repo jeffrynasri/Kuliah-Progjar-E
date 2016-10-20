@@ -5,27 +5,37 @@ import os
 host_server='localhost'
 port_server = 10000
 active_dir=os.getcwd()
+
+green='\033[1;32m'
+blue = '\033[1;34m'
+red='\033[1;48m'
+yellow='\033[1;33m'
+color_tail='\033[1;m'
 #-------------------PROSES-PROSES FTP------------------------------
-def get(conn):
-    filename='mytext.txt'
-    f = open(filename,'rb')
-    l = f.read(1024)
+def get(nama_file):
+    global active_dir
+    f = open(os.path.join(active_dir,nama_file),'rb')
+    l = f.read(55524)
     while (l):
        conn.send(l)
        print('MEngirim ',repr(l))
-       l = f.read(1024)
+       l = f.read(55524)
     f.close()
-
+    
     print('Proses Download Sukses')
-    conn.close()
+    status_send(226)
 def put():
+    global active_dir
     print ("put=UPload")
 
 def ls():
     global active_dir
     dirs= os.listdir(active_dir)
     for file in dirs:
-        print file
+#        print file
+        if(file.find('.')<0):
+            print(file.find('.'))
+            file= blue + file + color_tail
         conn.sendall(file + "\r\n") 
 def cd(target):
     global active_dir
@@ -84,10 +94,13 @@ def command_process(data):
 #        status_send(226)   
     if (commands[0].lower() == 'rmdir'):
         rmdir(commands[1])                
-#        status_send(226)   
+#        status_send(226)
+    if (commands[0].lower() == 'get'):
+        get(commands[1])                
+#        status_send(226)    
 def command_menu():
     while True:
-        conn.send("[FTP-TC]>> ")
+        conn.send("[FTP-TC]"+ active_dir +">> ")
         data = conn.recv(1024)
         if data:
             command_process(data)
@@ -97,19 +110,19 @@ def command_menu():
 
 def status_send(code):
     if(code == 230):
-        description = 'Login Sukses'
+        description = green+ 'Login Sukses'+ color_tail
     if(code == 231):
-        description = 'Logout Sukses'
+        description = green+'Logout Sukses'+ color_tail
     if(code == 220):
-        description = 'FTP Server Ready!'   
+        description = green+'FTP Server Ready!' +color_tail
     if(code == 250):
-        description = 'Perintah CWD Sukses'                             
+        description = green + 'Perintah CWD Sukses' + color_tail                             
     if(code == 221):
-        description = 'Menutup FTP Server' 
+        description = red + 'Menutup FTP Server' +color_tail
     if(code == 226):
-        description = 'Kirim Data Sukses'         
+        description = green + 'Kirim Data Sukses'+ color_tail
     if(code == 530):
-        description = 'Belum Login'
+        description = yellow + 'Belum Login' +color_tail
     conn.send(str(code) + " " + description + "\r\n")
 #---------------------------------------------------------------------
 #--------------------------LOGIN handle------------------------------
@@ -150,7 +163,15 @@ while True:
     conn, addr = s.accept()     # Membangun KOneksi denganklien
     try:
         print 'Ada Koneksi dari', addr
+        conn.send("-------FTP Server Kelompok 1-------\r\n")
+        conn.send("       ---------------------       \r\n")
+        conn.send("1. Jeffry Nasri Faruki 5114100043\r\n")        
+        conn.send("2. R.AY. Noormal Nadya 5114100127\r\n")                
+        conn.send("3. M Habibur Rahman 5114100163\r\n")
+        conn.send("4. Kukuh Rilo Pambudi 5114100178\r\n")                                        
+        conn.send("-----------------------------------\r\n")
         conn.send("Tersambung Ke FTP Server Kelompok 1\r\n")
+
         status_send(220)
         login_menu()
 #        command_menu()
