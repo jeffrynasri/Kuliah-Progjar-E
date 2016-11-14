@@ -6,16 +6,18 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 address=('127.0.0.1', 9011)
 s.bind(address)
 s.listen(10)
-c = {}
-list_grup = list()
+c = {} #isinya client
+list_grup = list() #isinya list grup
 
 def clientthread(conn):
     while 1:
         data = conn.recv(1024)
         e = data.split('>')
+
+        #e [0] isinya username
+        #perintah ada pada e [1]
         if len(e) == 3:
             if e[1] == 'BGRUP':
-                #print 'masuk Bikin grup'
                 try:
                     nama_grup = e[2]
                     if nama_grup == '':
@@ -33,9 +35,8 @@ def clientthread(conn):
                 else:
                     for p in list_grup: data = p
 
-            elif e[1] == 'KELUAR':
-                conn.close()
-                s.close()
+            elif e[1] == 'TUTUP':
+                break
 
             else:
                 if e[1] == 'tampil':

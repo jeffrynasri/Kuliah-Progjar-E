@@ -11,8 +11,12 @@ print 'Format pengiriman: recipient>message'
 
 def kirim(s):
     while 1:
-        s.send(u + '>' + raw_input())
-        print s.recv(1024)
+        command = raw_input()
+        if raw_input() == 'KELUAR':
+            s.close()
+        else:
+            s.send(u + '>' + raw_input())
+            print s.recv(1024)
         
 def terima(s):
     while 1:
