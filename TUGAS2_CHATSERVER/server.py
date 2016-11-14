@@ -3,7 +3,8 @@ from thread import *
 import string
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(('127.0.0.1', 8889))
+address=('127.0.0.1', 9000)
+s.bind(address)
 s.listen(10)
 c = {}
 
@@ -37,7 +38,11 @@ def clientthread(conn):
             data = 'Error'
         conn.send(data)
     conn.close()
+    
 while 1:
     conn, addr = s.accept()
+#    client_list.append(conn)
     start_new_thread(clientthread ,(conn,))
+    print 'system run'
+
 s.close()

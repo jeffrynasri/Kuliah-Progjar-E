@@ -3,7 +3,7 @@ from thread import *
 from time import sleep
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('127.0.0.1', 8889))
+s.connect(('127.0.0.1', 9000))
 u = raw_input('Username: ')
 
 print 'Format pengiriman: recipient>message'
