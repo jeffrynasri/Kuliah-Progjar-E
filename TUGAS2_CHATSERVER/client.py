@@ -3,7 +3,7 @@ from thread import *
 from time import sleep
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('127.0.0.1', 9000))
+s.connect(('127.0.0.1', 9003))
 u = raw_input('Username: ')
 p = raw_input('Password: ')
 

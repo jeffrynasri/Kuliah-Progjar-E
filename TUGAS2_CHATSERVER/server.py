@@ -3,16 +3,33 @@ from thread import *
 import string
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-address=('127.0.0.1', 9000)
+address=('127.0.0.1', 9003)
 s.bind(address)
 s.listen(10)
 c = {}
+list_grup = list()
 
 def clientthread(conn):
     while 1:
         data = conn.recv(1024)
         e = data.split('>')
         if len(e) == 3:
+            
+            if e[0] == 'BGRUP':
+                try:
+                    nama_grup = ''
+                    if nama_grup == '':
+                        data = 'beri nama grup dulu'
+                    else:
+                        nama_grup = e[1]
+                        list_grup.append(nama_grup)
+                        data = 'Grup berhasil dibuat'
+                except:
+                    data = 'grup belum memiliki nama'
+
+            if e[0] == 'TGRUP':
+                for p in list_grup: print p
+                    
             if e[1] == 'tampil':
                 try:
                     m = ''
@@ -34,6 +51,7 @@ def clientthread(conn):
                     c[e[1]] = []
                 c[e[1]].append(e[0]+'>'+e[2])
                 data = 'Ok'
+
         #else if len(e) > 3:
         else:
             data = 'error'
