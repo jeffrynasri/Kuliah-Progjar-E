@@ -12,7 +12,7 @@ def clientthread(conn):
         data = conn.recv(1024)
         e = data.split('>')
         if len(e) == 3:
-            if e[1] == 'show':
+            if e[1] == 'tampil':
                 try:
                     m = ''
                     for i in range(0, len(c[e[0]])):
@@ -20,12 +20,12 @@ def clientthread(conn):
                         if i != (len(c[e[0]])-1):
                             m = m + '\n'
                         if m == '':
-                            data = 'No messages'
+                            data = 'pesan_kosong'
                         else:
                             data = m
                     del c[e[0]]
                 except:
-                    data = 'No messages'
+                    data = 'pesan_kosong'
             else:
                 try:
                     c[e[1]]
@@ -33,10 +33,12 @@ def clientthread(conn):
                     c[e[1]] = []
                 c[e[1]].append(e[0]+'>'+e[2])
                 data = 'Ok'
+        #else if len(e) > 3:
         else:
-            data = 'Error'
+            data = 'error'
         conn.send(data)
     conn.close()
+    
 while 1:
     conn, addr = s.accept()
     start_new_thread(clientthread ,(conn,))
