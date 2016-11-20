@@ -12,10 +12,8 @@ def login(socket,username,password):#OK
                 kirim_status(sock,2)            
             if(username==ACCOUNT_LIST[i][0] and password==ACCOUNT_LIST[i][1]):
                 LOGIN_SESSION[CONNECTION_LIST.index(socket)]=username
-                GROUP_SESSION[CONNECTION_LIST.index(socket)]="Publik"
-                broadcast_data(socket, "[" +str(socket.getpeername())+ ":"+username+"] memasuki grup publik \r\n" )
+                GROUP_SESSION[CONNECTION_LIST.index(socket)]="0"
                 kirim_status(socket,1)
-                kirim_status(socket,12)
                 break
                 
     except:
@@ -50,7 +48,7 @@ def kirim_grup(sock,isipesan):#ok
     try :    
         for socket in CONNECTION_LIST:
             if (GROUP_SESSION[CONNECTION_LIST.index(socket)] == nama_grup and socket != sock) :
-                    socket.send("\r\n"+isipesan)              
+                    socket.send(isipesan)              
         kirim_status(sock,3)                            
     except :
         kirim_status(socket,4)              
@@ -86,7 +84,8 @@ def bgrup(sock,nama,password):
 
 def pgs(sock):#ok
     try:
-        sock.send("\r\n" + GROUP_SESSION[CONNECTION_LIST.index(sock)]+"\r\n")
+    
+        sock.send(GROUP_SESSION[CONNECTION_LIST.index(sock)]+"\r\n")
         kirim_status(sock,20)
     except:
         kirim_status(sock,21)    
@@ -112,7 +111,7 @@ def tgrup(sock): #ok
         pkirim_status(sock,21)
 def kgrup(sock):#ok
     try:
-        GROUP_SESSION[CONNECTION_LIST.index(sock)]="Publik"
+        GROUP_SESSION[CONNECTION_LIST.index(sock)]="0"
         kirim_status(sock,16)
     except:
         kirim_status(sock,17)
@@ -135,7 +134,7 @@ def hgrup(sock,nama,password):
         #Ubah default data grup di GROUP_SESSION
             for i in range(i,len(GROUP_SESSION),1):
                 if GROUP_SESSION[i]==nama :
-                    GROUP_SESSION[i]="Publik"
+                    GROUP_SESSION[i]="0"
         #-------------------------------    
         #HApus data grup di GROUP_LIST
             for i in range(i,len(GROUP_LIST),1):
@@ -156,7 +155,8 @@ def broadcast_data (sock, message):
             except :  
                 socket.close()
                 CONNECTION_LIST.remove(socket)
-                        
+
+
 def kirim_status(conn,kode):
     if(kode == 1):
         deskripsi = green+ str(kode)+ ":" +'Login Berhasil.'+ color_tail
@@ -181,7 +181,7 @@ def kirim_status(conn,kode):
     if(kode == 11):
         deskripsi = green+ str(kode)+ ":"  + 'Join Chat Server Sukses.' +color_tail                                
     if(kode == 12):
-        deskripsi = blue + "\r\n<----------Selamat Datang di Grup "+GROUP_SESSION[CONNECTION_LIST.index(conn)]+ " ---------->" +color_tail                                
+        deskripsi = green + "Gabung Grup "+GROUP_SESSION[CONNECTION_LIST.index(conn)]+ " Sukses." +color_tail                                
     if(kode == 13):
         deskripsi = green+ str(kode)+ ":"  + 'Buat Grup Sukses.' +color_tail
     if(kode == 14):
@@ -199,18 +199,11 @@ def kirim_status(conn,kode):
     if(kode == 20):
         deskripsi = green + str(kode)+ ":" + 'Data Berhasil Diterima.' +color_tail
     if(kode == 21):
-        deskripsi = green + str(kode)+ ":" + 'Data Gagal Diterima.' +color_tail                            
+        deskripsi = green + str(kode)+ ":" + 'Data Gagal Diterima.' +color_tail
+    if(kode == 22):
+        deskripsi = red + str(kode)+ ":" + 'Socket rusak.' +color_tail                                                                
+    conn.send(deskripsi+"\r\n")
     
-    menu="[ChatsrvrE1-"
-    if(LOGIN_SESSION[CONNECTION_LIST.index(conn)]=="0"):
-        menu=menu + "User = Belum Login] > " 
-    else:
-        menu=menu+"User = " + LOGIN_SESSION[CONNECTION_LIST.index(conn)] + "] > "                                                         
-
-    if (kode==1):
-        conn.send(deskripsi+"\r\n")
-    else:
-        conn.send(deskripsi+"\r\n"+menu)
 def menu_handling(sock):
     if sock == server_socket:
         koneksi_client,alamat_client= server_socket.accept()
@@ -218,12 +211,10 @@ def menu_handling(sock):
         LOGIN_SESSION.append("0")
         GROUP_SESSION.append("0")        
         print "Koneksi dari ",alamat_client
-        koneksi_client.send("-------Chat Server Kelompok 1-Progjar E-------\r\n       ---------------------       \r\n1. JORDY ADHITYO P 5111100101\r\n2. Jeffry Nasri Faruki 5114100043\r\n3. R.AY. Noormal Nadya 5114100127\r\n4. M Habibur Rahman 5114100163\r\n5. Kukuh Rilo Pambudi 5114100178\r\n-----------------------------------\r\nKetik login <username> <password> untuk login\r\n-----------------------------------\r\n")
         kirim_status(koneksi_client,11)                         
     else:
         # Data recieved from client, process it
-        try:
-#LOGIN_SESSION[CONNECTION_LIST.index(sock)]!="0"'''        
+        try:     
             message = sock.recv(1024)
             if message:
                 perintah=message.split()      
@@ -264,8 +255,7 @@ def menu_handling(sock):
                     else:
                         kirim_status(sock,10)
         except:
-                broadcast_data(sock, "Client (%s, %s) sedang offline" % alamat_client)
-                print "Client (%s, %s) sedang offline" % alamat_client
+                kirim_status(sock,22)
                 sock.close()
                 CONNECTION_LIST.remove(sock)
 
