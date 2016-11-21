@@ -7,6 +7,7 @@ import select,sys
 #----------------------------------------------FUNGSI - FUNGSI DARI PERINTAH CHAT SERVER----------------------------------------------------------------
 def login(socket,username,password):#OK
     try:
+        flag=0
         for i in range(0,len(ACCOUNT_LIST),1):
             if(i==(len(ACCOUNT_LIST)-1) and ACCOUNT_LIST[i][0]!=username and ACCOUNT_LIST[i][1]!=password):
                 kirim_status(sock,2)            
@@ -14,10 +15,28 @@ def login(socket,username,password):#OK
                 LOGIN_SESSION[CONNECTION_LIST.index(socket)]=username
                 GROUP_SESSION[CONNECTION_LIST.index(socket)]="0"
                 kirim_status(socket,1)
+                flag=1
                 break
-                
+        if(flag==1):
+            fp=open("pesan.txt", "r")
+            #lines=fp.readlines()
+            for line in fp:
+                pesan=line.split("|")
+                if(username==pesan[0]):
+                    socket.send("<"+pesan[1]+">"+pesan[2])
+            fp.close()
+            fp=open("pesan.txt", "r")
+            lines=fp.readlines()
+            fp.close()
+            fp=open("pesan.txt", "w")
+            for line in lines:
+                pesan=line.split("|")
+                if(pesan[0]!=username):
+                    fp.write(line)
+            fp.close()
     except:
-        kirim_status(socket,2)            
+        kirim_status(socket,2)
+        
 def daftar(socket,username,password):#Ok
     try:
         for i in range(0,len(ACCOUNT_LIST),1):
@@ -63,9 +82,9 @@ def kirim_private(sock,username_tujuan,isipesan):#ok
             if(i==(len(LOGIN_SESSION)-1)):
                 for i in range(0, len(ACCOUNT_LIST), 1):
                     if(username_tujuan==ACCOUNT_LIST[i][0]):
-                        tf=open("inbox.txt", "a+")
-                        baruisipesan=isipesan.replace("<","")
-                        baruisipesan=baruisipesan.replace(">"," ")
+                        tf=open("pesan.txt", "a+")
+                        baruisipesan=isipesan.replace("<","|")
+                        baruisipesan=baruisipesan.replace(">","|")
                         tf.write(username_tujuan+baruisipesan)
                         tf.close()
                         kirim_status(sock,3)
@@ -306,19 +325,6 @@ def inisialitation():
             i=i+1
     fg.close()
     #---------------------------
-    # Inisialisasi Daftar Pesan
-    fp=open("inbox.txt", "r")
-    i=0
-    for line in fp:
-        pesan=line.split()
-        if pesan:
-            PESAN_LIST.append([])
-            PESAN_LIST[i].append(pesan[0])
-            PESAN_LIST[i].append(pesan[1])
-            PESAN_LIST[i].append(pesan[2])
-            i=i+1
-    fp.close()
-    #----------------------------
 
 #@Main
 #----------------------------------------------FUNGSI MAIN----------------------------------------------------------------                
