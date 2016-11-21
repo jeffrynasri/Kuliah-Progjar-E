@@ -57,15 +57,28 @@ def kirim_grup(sock,isipesan):#ok
 
 def kirim_private(sock,username_tujuan,isipesan):#ok
     try:
+        flag=0
         for i in range(0,len(LOGIN_SESSION),1):
-            if(i==(len(LOGIN_SESSION)-1) and LOGIN_SESSION[i][0]!=username_tujuan):
-            #JIka User tdk ditemukan
-                kirim_status(sock,4)            
+            #Jika penerima offline
+            if(i==(len(LOGIN_SESSION)-1)):
+                for i in range(0, len(ACCOUNT_LIST), 1):
+                    if(username_tujuan==ACCOUNT_LIST[i][0]):
+                        tf=open("inbox.txt", "a+")
+                        baruisipesan=isipesan.replace("<","")
+                        baruisipesan=baruisipesan.replace(">"," ")
+                        tf.write(username_tujuan+baruisipesan)
+                        tf.close()
+                        kirim_status(sock,3)
+                        flag=1
+                        break
+                #Jika penerima tidak ada
+                if(flag==0):
+                    kirim_status(sock,4)
             elif(LOGIN_SESSION[i]==username_tujuan):
                 CONNECTION_LIST[i].send("\r\n"+isipesan)
                 kirim_status(sock,3)
                 break
-    except:                
+    except:
         kirim_status(sock,4)
 def bgrup(sock,nama,password):
     try:
@@ -152,10 +165,11 @@ def broadcast_data (sock, message):
         if socket != server_socket and socket != sock :
             try :
                 socket.send(message)              
-            except :  
+            except :
                 socket.close()
                 CONNECTION_LIST.remove(socket)
-
+#def is_user_terdaftar(username):
+#    for
 
 def kirim_status(conn,kode):
     if(kode == 1):
@@ -291,7 +305,7 @@ def inisialitation():
             GROUP_LIST[i].append(grup[1])                   
             i=i+1
     fg.close()
-    #---------------------------      
+    #---------------------------
 
 #@Main
 #----------------------------------------------FUNGSI MAIN----------------------------------------------------------------                
