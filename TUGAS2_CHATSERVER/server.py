@@ -306,6 +306,19 @@ def inisialitation():
             i=i+1
     fg.close()
     #---------------------------
+    # Inisialisasi Daftar Pesan
+    fp=open("inbox.txt", "r")
+    i=0
+    for line in fp:
+        pesan=line.split()
+        if pesan:
+            PESAN_LIST.append([])
+            PESAN_LIST[i].append(pesan[0])
+            PESAN_LIST[i].append(pesan[1])
+            PESAN_LIST[i].append(pesan[2])
+            i=i+1
+    fp.close()
+    #----------------------------
 
 #@Main
 #----------------------------------------------FUNGSI MAIN----------------------------------------------------------------                
