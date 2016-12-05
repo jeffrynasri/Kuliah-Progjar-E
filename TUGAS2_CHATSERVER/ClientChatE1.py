@@ -6,7 +6,9 @@ import tkMessageBox
 
 WIDTH_DEFAULT=500
 HEIGHT_DEFAULT=600
-host="10.151.36.250"
+#host="10.151.36.250"
+#port=10020
+host="127.0.0.1"
 port=10020
 user_login=""
 callback=None
@@ -68,6 +70,7 @@ def show_status_code(code):
 		tkMessageBox.showerror("Status Kode", str(code)+":Password Grup Salah")
 	elif str(code)=="293":		
 		tkMessageBox.showerror("Status Kode", str(code)+":Group Tidak Ada")				
+
 def MenuLogin(BaseWindows):
 	clear_frame(BaseWindows)
 	BaseWindows.title("Aplikasi Chat Clien")
@@ -80,14 +83,14 @@ def MenuLogin(BaseWindows):
 	frame_login.pack(fill=X)
 	lbl_username = Label(frame_login, text="Username", width=11)
 	lbl_username.pack(side=LEFT)
-	entry_username=Entry(frame_login,textvariable=StringVar(frame_login, value="luqman"))
+	entry_username=Entry(frame_login,textvariable=StringVar(frame_login, value="tion"))
 	entry_username.pack(side=RIGHT,fill=X,pady=10, padx=10,expand=True)
 	
 	frame_login2 = Frame(BaseWindows)
 	frame_login2.pack(fill=X)
 	lbl_password = Label(frame_login2, text="Password", width=11)
 	lbl_password.pack(side=LEFT)
-	entry_password=Entry(frame_login2,textvariable=StringVar(frame_login2, value="123"))
+	entry_password=Entry(frame_login2,textvariable=StringVar(frame_login2, value="789"))
 	entry_password.pack(side=LEFT,fill=X,pady=10, padx=10,expand=True)
 	
 	frame_button = Frame(BaseWindows)
@@ -151,10 +154,16 @@ def MenuHome(BaseWindows):
 	
 	frame_inbox = Frame(BaseWindows)
 	frame_inbox.pack(fill=X)
-	label_inbox = Label(frame_inbox, text="Inbox",  font=("Helvetica", 16,"bold"),width=11)
+	label_inbox = Label(frame_inbox, text="Inbox",  font=("Helvetica", 16,"bold"))
 	label_inbox.pack(fill=X,expand=True)
-	text_inbox=Text(frame_inbox,bg="white",fg="green",state=DISABLED)
-	text_inbox.pack(fill=X, pady=10, padx=10,expand=True)
+	listbox_inbox=Listbox(frame_inbox,bg="white",fg="green",height=23)
+	#scrollbar = Scrollbar(listbox_inbox)
+	#listbox_inbox.config(yscrollcommand=scrollbar.set)
+	#scrollbar.config(command=listbox_inbox.yview)
+	#crollbar.pack(side=RIGHT)
+	#listbox_inbox.config(height=23)
+	listbox_inbox.pack(fill=X, pady=10, padx=10,expand=True)
+	listbox_inbox.bind('<Double-Button-1>',listbox_detail)
 	s.sendall("checkpast")
 	check_past(BaseWindows)
 	button_refresh = Button(frame_inbox,text="Refresh",command=lambda: refresh(BaseWindows,0))
@@ -352,6 +361,69 @@ def login(BaseWindows):
 		global user_login
 		user_login=username
 		MenuHome(BaseWindows)
+def listbox_detail(evt):
+	w = evt.widget
+	index = int(w.curselection()[0])
+	value = w.get(index)
+	data=value.split(" ")
+	
+	tanggal=data[0]
+	waktu=data[1]
+	data2=data[2].split(":")
+	if (len(data2)==1):
+		jenis="Private Message"
+		pengirim=data2[0]
+	else:
+		if(data2[0] == "broadcast"):
+			jenis=data2[0]
+			pengirim=data2[1]
+		else:
+			jenis="Grup "+data2[0]
+			pengirim=data2[1]
+	isi=""
+	for i in range(3,len(data),1):
+		isi=isi+" "+data[i]
+
+	listbox_detailWindows = Tk()		
+	listbox_detailWindows.title("Detail Pesan")
+	center_windows_position(listbox_detailWindows)
+	
+	frame_tanggal = Frame(listbox_detailWindows)
+	frame_tanggal.pack(fill=X)
+	lbl_tanggal = Label(frame_tanggal, text="Tanggal", width=11)
+	lbl_tanggal.pack(side=LEFT)
+	entry_tanggal=Entry(frame_tanggal,textvariable=StringVar(frame_tanggal, value=tanggal))
+	entry_tanggal.pack(side=RIGHT,fill=X,pady=10, padx=10,expand=True)
+	
+	frame_waktu = Frame(listbox_detailWindows)
+	frame_waktu.pack(fill=X)
+	lbl_waktu = Label(frame_waktu, text="Waktu", width=11)
+	lbl_waktu.pack(side=LEFT)
+	entry_waktu=Entry(frame_waktu,textvariable=StringVar(frame_waktu, value=waktu))
+	entry_waktu.pack(side=RIGHT,fill=X,pady=10, padx=10,expand=True)
+	
+	frame_jenis = Frame(listbox_detailWindows)
+	frame_jenis.pack(fill=X)
+	lbl_jenis = Label(frame_jenis, text="Jenis Pesan", width=11)
+	lbl_jenis.pack(side=LEFT)
+	entry_jenis=Entry(frame_jenis,textvariable=StringVar(frame_jenis, value=jenis))
+	entry_jenis.pack(side=RIGHT,fill=X,pady=10, padx=10,expand=True)
+	
+	frame_pengirim = Frame(listbox_detailWindows)
+	frame_pengirim.pack(fill=X)
+	lbl_pengirim = Label(frame_pengirim, text="Pengirim", width=11)
+	lbl_pengirim.pack(side=LEFT)
+	entry_pengirim=Entry(frame_pengirim,textvariable=StringVar(frame_pengirim, value=pengirim))
+	entry_pengirim.pack(side=RIGHT,fill=X,pady=10, padx=10,expand=True)
+	
+	frame_isi = Frame(listbox_detailWindows)
+	frame_isi.pack(fill=X)
+	lbl_isi = Label(frame_isi, text="Isi", width=11)
+	lbl_isi.pack(side=LEFT)
+	text_isi=Text(frame_isi)
+	text_isi.insert(END, isi)
+	text_isi.pack(side=RIGHT,fill=X,pady=10, padx=10,expand=True)
+	
 def check_past(BaseWindows):		
 	try:
 		rdata = s.recv(2048)
@@ -368,12 +440,19 @@ def check_past(BaseWindows):
 				elif str(data)=="SUKSES 100":
 					continue
 				else:
-					widgets[1].config(state=NORMAL)
-					widgets[1].insert(END,str(data)+"\n")   
-					widgets[1].config(state=DISABLED)
+				#	widgets[1].config(state=NORMAL)
+					widgets[1].insert(END,str(data))   
+				#	widgets[1].config(state=DISABLED)
 			callback=BaseWindows.after(1000,check_past(BaseWindows))
 	except:
 		callback=0
+		
+		#Frame=BaseWindows.winfo_children()
+		#widgets = Frame[2].winfo_children()
+		#scrollbar = Scrollbar(widgets[1])
+		#idgets[1].config(yscrollcommand=scrollbar.set,height=23)
+		#scrollbar.config(command=widgets[1].yview)
+		#scrollbar.pack(side=RIGHT, fill=Y)
 		print("Log Chat DIdapatkan")
 def refresh(BaseWindows,indeks):
 	if (indeks==0):
