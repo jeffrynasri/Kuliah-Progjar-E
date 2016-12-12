@@ -60,7 +60,7 @@ def kirim_private(sock,username_tujuan,isipesan):#ok
         flag=0
         for i in range(0,len(LOGIN_SESSION),1):
             #Jika penerima offline
-            if(i==(len(LOGIN_SESSION)-1)):
+            if(i==(len(LOGIN_SESSION))):
                 for i in range(0, len(ACCOUNT_LIST), 1):
                     if(username_tujuan==ACCOUNT_LIST[i][0]):
                         tf=open("pesan.txt", "a+")
@@ -176,7 +176,7 @@ def apesan(socket):
                 fp.write(line)
         fp.close()
     except:
-        kirim_status(sock,19)
+        kirim_status(sock,23)
 #@PEmrosesan
 #----------------------------------------------FUNGSI - FUNGSI PEMROSESAN----------------------------------------------------------------
 def broadcast_data (sock, message):
@@ -234,7 +234,9 @@ def kirim_status(conn,kode):
     if(kode == 21):
         deskripsi =  str(kode)+ ":" + 'Data Gagal Diterima.' 
     if(kode == 22):
-        deskripsi =  str(kode)+ ":" + 'Socket rusak.'                                                                 
+        deskripsi =  str(kode)+ ":" + 'Socket rusak.'
+    if(kode == 23):
+        deskripsi =  str(kode)+ ":" + 'Ambil pesan gagal.'
     conn.send(deskripsi)
     
 def menu_handling(sock):

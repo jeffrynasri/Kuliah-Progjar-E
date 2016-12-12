@@ -1,0 +1,3 @@
+admin|admin| test
+admin|admin2| test
+amin|admin2| nice
