@@ -175,8 +175,9 @@ def apesan(socket):
             if(pesan[0]!=LOGIN_SESSION[CONNECTION_LIST.index(socket)]):
                 fp.write(line)
         fp.close()
-    except:
         kirim_status(sock,23)
+    except:
+        kirim_status(sock,24)
 #@PEmrosesan
 #----------------------------------------------FUNGSI - FUNGSI PEMROSESAN----------------------------------------------------------------
 def broadcast_data (sock, message):
@@ -236,6 +237,8 @@ def kirim_status(conn,kode):
     if(kode == 22):
         deskripsi =  str(kode)+ ":" + 'Socket rusak.'
     if(kode == 23):
+        deskripsi =  str(kode)+ ":" + 'Ambil pesan berhasil.'
+    if(kode == 24):
         deskripsi =  str(kode)+ ":" + 'Ambil pesan gagal.'
     conn.send(deskripsi)
     
