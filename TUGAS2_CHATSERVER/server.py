@@ -7,7 +7,6 @@ import select,sys
 #----------------------------------------------FUNGSI - FUNGSI DARI PERINTAH CHAT SERVER----------------------------------------------------------------
 def login(socket,username,password):#OK
     try:
-        flag=0
         for i in range(0,len(ACCOUNT_LIST),1):
             if(i==(len(ACCOUNT_LIST)-1) and ACCOUNT_LIST[i][0]!=username and ACCOUNT_LIST[i][1]!=password):
                 kirim_status(sock,2)            
@@ -15,25 +14,7 @@ def login(socket,username,password):#OK
                 LOGIN_SESSION[CONNECTION_LIST.index(socket)]=username
                 GROUP_SESSION[CONNECTION_LIST.index(socket)]="0"
                 kirim_status(socket,1)
-                flag=1
-                break
-        if(flag==1):
-            fp=open("pesan.txt", "r")
-            #lines=fp.readlines()
-            for line in fp:
-                pesan=line.split("|")
-                if(username==pesan[0]):
-                    socket.send("<"+pesan[1]+">"+pesan[2])
-            fp.close()
-            fp=open("pesan.txt", "r")
-            lines=fp.readlines()
-            fp.close()
-            fp=open("pesan.txt", "w")
-            for line in lines:
-                pesan=line.split("|")
-                if(pesan[0]!=username):
-                    fp.write(line)
-            fp.close()
+                break           
     except:
         kirim_status(socket,2)
         
@@ -67,7 +48,7 @@ def kirim_grup(sock,isipesan):#ok
     try :    
         for socket in CONNECTION_LIST:
             if (GROUP_SESSION[CONNECTION_LIST.index(socket)] == nama_grup and socket != sock) :
-                    socket.send(isipesan)              
+                socket.send(isipesan)              
         kirim_status(sock,3)                            
     except :
         kirim_status(socket,4)              
@@ -77,25 +58,15 @@ def kirim_grup(sock,isipesan):#ok
 def kirim_private(sock,username_tujuan,isipesan):#ok
     try:
         flag=0
-        for i in range(0,len(LOGIN_SESSION),1):
-            #Jika penerima offline
-            if(i==(len(LOGIN_SESSION)-1)):
-                for i in range(0, len(ACCOUNT_LIST), 1):
-                    if(username_tujuan==ACCOUNT_LIST[i][0]):
-                        tf=open("pesan.txt", "a+")
-                        baruisipesan=isipesan.replace("<","|")
-                        baruisipesan=baruisipesan.replace(">","|")
-                        tf.write(username_tujuan+baruisipesan)
-                        tf.close()
-                        kirim_status(sock,3)
-                        flag=1
-                        break
-                #Jika penerima tidak ada
-                if(flag==0):
-                    kirim_status(sock,4)
-            elif(LOGIN_SESSION[i]==username_tujuan):
-                CONNECTION_LIST[i].send("\r\n"+isipesan)
+        for i in range(0, len(ACCOUNT_LIST), 1):
+            if(username_tujuan==ACCOUNT_LIST[i][0]):
+                tf=open("pesan.txt", "a+")
+                baruisipesan=isipesan.replace("<","|")
+                baruisipesan=baruisipesan.replace(">","|")
+                tf.write(username_tujuan+baruisipesan)
+                tf.close()
                 kirim_status(sock,3)
+                flag=1
                 break
     except:
         kirim_status(sock,4)
@@ -176,7 +147,27 @@ def hgrup(sock,nama,password):
     #-------------------------------    
     except :
         kirim_status(sock,19)
-
+def apesan(socket):
+    try:
+        fp=open("pesan.txt", "r")
+        #lines=fp.readlines()
+        for line in fp:
+            pesan=line.split("|")
+            if(LOGIN_SESSION[CONNECTION_LIST.index(socket)]==pesan[0]):
+                socket.send("<"+pesan[1]+">"+pesan[2])
+        fp.close()
+        fp=open("pesan.txt", "r")
+        lines=fp.readlines()
+        fp.close()
+        fp=open("pesan.txt", "w")
+        for line in lines:
+            pesan=line.split("|")
+            if(pesan[0]!=LOGIN_SESSION[CONNECTION_LIST.index(socket)]):
+                fp.write(line)
+        fp.close()
+        kirim_status(sock,23)
+    except:
+        kirim_status(sock,24)
 #@PEmrosesan
 #----------------------------------------------FUNGSI - FUNGSI PEMROSESAN----------------------------------------------------------------
 def broadcast_data (sock, message):
@@ -192,50 +183,54 @@ def broadcast_data (sock, message):
 
 def kirim_status(conn,kode):
     if(kode == 1):
-        deskripsi = green+ str(kode)+ ":" +'Login Berhasil.'+ color_tail
+        deskripsi = str(kode)+ ":" +'Login Berhasil.'
     if(kode == 2):
-        deskripsi = red+ str(kode)+ ":" + 'Login Gagal.'+ color_tail
+        deskripsi = str(kode)+ ":" + 'Login Gagal.'
     if(kode == 3):
-        deskripsi = green+ str(kode)+ ":"  + 'Kirim Pesan Berhasil.' +color_tail 
+        deskripsi = str(kode)+ ":"  + 'Kirim Pesan Berhasil.'
     if(kode == 4):
-        deskripsi = red+ str(kode)+ ":"  + 'Kirim Pesan Gagal.' +color_tail
+        deskripsi = str(kode)+ ":"  + 'Kirim Pesan Gagal.'
     if(kode == 5):
-        deskripsi = red+ str(kode)+ ":"  + 'Proses Gagal,Karena Belum Terautentifikasi.' +color_tail                            
+        deskripsi = str(kode)+ ":"  + 'Proses Gagal,Karena Belum Terautentifikasi.'                         
     if(kode == 6):
-        deskripsi = green+ str(kode)+ ":"  + 'Logout Berhasil.' +color_tail 
+        deskripsi = str(kode)+ ":"  + 'Logout Berhasil.'
     if(kode == 7):
-        deskripsi = red+ str(kode)+ ":"  + 'Logout Gagal.' +color_tail
+        deskripsi = str(kode)+ ":"  + 'Logout Gagal.'
     if(kode == 8):
-        deskripsi = green+ str(kode)+ ":" + 'Daftar Berhasil.' +color_tail 
+        deskripsi = str(kode)+ ":" + 'Daftar Berhasil.'
     if(kode == 9):
-        deskripsi = red+ str(kode)+ ":"  + 'Daftar Gagal.' +color_tail
+        deskripsi = str(kode)+ ":"  + 'Daftar Gagal.'
     if(kode == 10):
-        deskripsi = red+ str(kode)+ ":"  + 'Syntax Tidak Dikenali.' +color_tail
+        deskripsi = str(kode)+ ":"  + 'Syntax Tidak Dikenali.'
     if(kode == 11):
-        deskripsi = green+ str(kode)+ ":"  + 'Join Chat Server Sukses.' +color_tail                                
+        deskripsi = str(kode)+ ":"  + 'Join Chat Server Sukses.'                                
     if(kode == 12):
-        deskripsi = green + "Gabung Grup "+GROUP_SESSION[CONNECTION_LIST.index(conn)]+ " Sukses." +color_tail                                
+        deskripsi = "Gabung Grup "+GROUP_SESSION[CONNECTION_LIST.index(conn)]+ " Sukses."                            
     if(kode == 13):
-        deskripsi = green+ str(kode)+ ":"  + 'Buat Grup Sukses.' +color_tail
+        deskripsi =  str(kode)+ ":"  + 'Buat Grup Sukses.' 
     if(kode == 14):
-        deskripsi = red+ str(kode)+ ":"  + 'Buat Grup Gagal.' +color_tail
+        deskripsi =  str(kode)+ ":"  + 'Buat Grup Gagal.' 
     if(kode == 15):
-        deskripsi = red + str(kode)+ ":" + 'Gabung Grup Gagal.' +color_tail
+        deskripsi =  str(kode)+ ":" + 'Gabung Grup Gagal.' 
     if(kode == 16):
-        deskripsi = green + str(kode)+ ":" + 'Keluar Grup Berhasil.' +color_tail
+        deskripsi =  str(kode)+ ":" + 'Keluar Grup Berhasil.' 
     if(kode == 17):
-        deskripsi = red + str(kode)+ ":" + 'Keluar Grup Gagal.' +color_tail
+        deskripsi =  str(kode)+ ":" + 'Keluar Grup Gagal.' 
     if(kode == 18):
-        deskripsi = green + str(kode)+ ":" + 'Hapus Grup Berhasil.' +color_tail
+        deskripsi =  str(kode)+ ":" + 'Hapus Grup Berhasil.' 
     if(kode == 19):
-        deskripsi = red + str(kode)+ ":" + 'Hapus Grup Gagal.' +color_tail
+        deskripsi =  str(kode)+ ":" + 'Hapus Grup Gagal.' 
     if(kode == 20):
-        deskripsi = green + str(kode)+ ":" + 'Data Berhasil Diterima.' +color_tail
+        deskripsi =  str(kode)+ ":" + 'Data Berhasil Diterima.' 
     if(kode == 21):
-        deskripsi = green + str(kode)+ ":" + 'Data Gagal Diterima.' +color_tail
+        deskripsi =  str(kode)+ ":" + 'Data Gagal Diterima.' 
     if(kode == 22):
-        deskripsi = red + str(kode)+ ":" + 'Socket rusak.' +color_tail                                                                
-    conn.send(deskripsi+"\r\n")
+        deskripsi =  str(kode)+ ":" + 'Socket rusak.'
+    if(kode == 23):
+        deskripsi =  str(kode)+ ":" + 'Ambil pesan berhasil.'
+    if(kode == 24):
+        deskripsi =  str(kode)+ ":" + 'Ambil pesan gagal.'
+    conn.send(deskripsi)
     
 def menu_handling(sock):
     if sock == server_socket:
@@ -272,7 +267,11 @@ def menu_handling(sock):
                     elif (perintah[0].lower() == 'hgrup'):
                         hgrup(sock,perintah[1],perintah[2])                    
                     elif (perintah[0].lower() == 'kirim_grup'):
-                        kirim_grup(sock,'<' + LOGIN_SESSION[CONNECTION_LIST.index(sock)] + '> ' + perintah[1] + "\r\n")                
+                        kirim_grup(sock,'<' + LOGIN_SESSION[CONNECTION_LIST.index(sock)] + '> ' + perintah[1] + "\r\n")
+                    elif (perintah[0].lower() == 'pgs'):
+                        apesan(sock)
+                    elif (perintah[0].lower() == 'apesan'):
+                        apesan(sock)
                     else:
                         kirim_status(sock,10)
                 else:
@@ -335,7 +334,7 @@ if __name__ == "__main__":
     GROUP_LIST=[]         #DAftar AKun dg Array 2d (kolom 1 nama grup dan  kolom 2 PAssword)
     LOGIN_SESSION=[]        #Loggin SEssion dg Array 1d(Isi nya adalah 0 untuk belum login dan selain 0(username) untuk yg sudah login)   
     GROUP_SESSION=[]         #Grup SEssion dg Array 1d(Isi nya adalah 0 untuk yg belumjoin dan selain 0(namagrup) untuk yg sudah join grup)   
-    srver_address=('localhost',10000) 
+    srver_address=("localhost", 10010) 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     green='\033[1;32m'
     blue = '\033[1;34m'
