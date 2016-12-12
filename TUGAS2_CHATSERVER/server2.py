@@ -7,7 +7,6 @@ import select,sys
 #----------------------------------------------FUNGSI - FUNGSI DARI PERINTAH CHAT SERVER----------------------------------------------------------------
 def login(socket,username,password):#OK
     try:
-        flag=0
         for i in range(0,len(ACCOUNT_LIST),1):
             if(i==(len(ACCOUNT_LIST)-1) and ACCOUNT_LIST[i][0]!=username and ACCOUNT_LIST[i][1]!=password):
                 kirim_status(sock,2)            
@@ -15,25 +14,7 @@ def login(socket,username,password):#OK
                 LOGIN_SESSION[CONNECTION_LIST.index(socket)]=username
                 GROUP_SESSION[CONNECTION_LIST.index(socket)]="0"
                 kirim_status(socket,1)
-                flag=1
-                break
-        if(flag==1):
-            fp=open("pesan.txt", "r")
-            #lines=fp.readlines()
-            for line in fp:
-                pesan=line.split("|")
-                if(username==pesan[0]):
-                    socket.send("<"+pesan[1]+">"+pesan[2])
-            fp.close()
-            fp=open("pesan.txt", "r")
-            lines=fp.readlines()
-            fp.close()
-            fp=open("pesan.txt", "w")
-            for line in lines:
-                pesan=line.split("|")
-                if(pesan[0]!=username):
-                    fp.write(line)
-            fp.close()
+                break           
     except:
         kirim_status(socket,2)
         
@@ -67,7 +48,7 @@ def kirim_grup(sock,isipesan):#ok
     try :    
         for socket in CONNECTION_LIST:
             if (GROUP_SESSION[CONNECTION_LIST.index(socket)] == nama_grup and socket != sock) :
-                    socket.send(isipesan)              
+                socket.send(isipesan)              
         kirim_status(sock,3)                            
     except :
         kirim_status(socket,4)              
@@ -176,7 +157,26 @@ def hgrup(sock,nama,password):
     #-------------------------------    
     except :
         kirim_status(sock,19)
-
+def apesan(socket):
+    try:
+        fp=open("pesan.txt", "r")
+        #lines=fp.readlines()
+        for line in fp:
+            pesan=line.split("|")
+            if(LOGIN_SESSION[CONNECTION_LIST.index(socket)]==pesan[0]):
+                socket.send("<"+pesan[1]+">"+pesan[2])
+        fp.close()
+        fp=open("pesan.txt", "r")
+        lines=fp.readlines()
+        fp.close()
+        fp=open("pesan.txt", "w")
+        for line in lines:
+            pesan=line.split("|")
+            if(pesan[0]!=LOGIN_SESSION[CONNECTION_LIST.index(socket)]):
+                fp.write(line)
+        fp.close()
+    except:
+        kirim_status(sock,19)
 #@PEmrosesan
 #----------------------------------------------FUNGSI - FUNGSI PEMROSESAN----------------------------------------------------------------
 def broadcast_data (sock, message):
@@ -272,7 +272,11 @@ def menu_handling(sock):
                     elif (perintah[0].lower() == 'hgrup'):
                         hgrup(sock,perintah[1],perintah[2])                    
                     elif (perintah[0].lower() == 'kirim_grup'):
-                        kirim_grup(sock,'<' + LOGIN_SESSION[CONNECTION_LIST.index(sock)] + '> ' + perintah[1] + "\r\n")                
+                        kirim_grup(sock,'<' + LOGIN_SESSION[CONNECTION_LIST.index(sock)] + '> ' + perintah[1] + "\r\n")
+                    elif (perintah[0].lower() == 'pgs'):
+                        apesan(sock)
+                    elif (perintah[0].lower() == 'apesan'):
+                        apesan(sock)
                     else:
                         kirim_status(sock,10)
                 else:
@@ -335,7 +339,7 @@ if __name__ == "__main__":
     GROUP_LIST=[]         #DAftar AKun dg Array 2d (kolom 1 nama grup dan  kolom 2 PAssword)
     LOGIN_SESSION=[]        #Loggin SEssion dg Array 1d(Isi nya adalah 0 untuk belum login dan selain 0(username) untuk yg sudah login)   
     GROUP_SESSION=[]         #Grup SEssion dg Array 1d(Isi nya adalah 0 untuk yg belumjoin dan selain 0(namagrup) untuk yg sudah join grup)   
-    srver_address=("10.151.36.250",10010) 
+    srver_address=("localhost", 10010) 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     green='\033[1;32m'
     blue = '\033[1;34m'
