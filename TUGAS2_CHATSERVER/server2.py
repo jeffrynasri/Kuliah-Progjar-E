@@ -58,25 +58,15 @@ def kirim_grup(sock,isipesan):#ok
 def kirim_private(sock,username_tujuan,isipesan):#ok
     try:
         flag=0
-        for i in range(0,len(LOGIN_SESSION),1):
-            #Jika penerima offline
-            if(i==(len(LOGIN_SESSION))):
-                for i in range(0, len(ACCOUNT_LIST), 1):
-                    if(username_tujuan==ACCOUNT_LIST[i][0]):
-                        tf=open("pesan.txt", "a+")
-                        baruisipesan=isipesan.replace("<","|")
-                        baruisipesan=baruisipesan.replace(">","|")
-                        tf.write(username_tujuan+baruisipesan)
-                        tf.close()
-                        kirim_status(sock,3)
-                        flag=1
-                        break
-                #Jika penerima tidak ada
-                if(flag==0):
-                    kirim_status(sock,4)
-            elif(LOGIN_SESSION[i]==username_tujuan):
-                CONNECTION_LIST[i].send("\r\n"+isipesan)
+        for i in range(0, len(ACCOUNT_LIST), 1):
+            if(username_tujuan==ACCOUNT_LIST[i][0]):
+                tf=open("pesan.txt", "a+")
+                baruisipesan=isipesan.replace("<","|")
+                baruisipesan=baruisipesan.replace(">","|")
+                tf.write(username_tujuan+baruisipesan)
+                tf.close()
                 kirim_status(sock,3)
+                flag=1
                 break
     except:
         kirim_status(sock,4)
