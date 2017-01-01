@@ -10,6 +10,7 @@ Aplikasi ini dibuat untuk memenuhi tugas di perkuliahan pemrograman jaringan ber
   * FTP server 
   * Chat server
   * Web server
+
 Aplikasi ini dibuat menggunakan bahasa python. Dan menggunakan library tkinter python bagi aplikasi chat client di folder /TUGAS2_CHATSERVER
 
 
